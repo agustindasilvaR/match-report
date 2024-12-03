@@ -5,9 +5,9 @@ function SumonnerProfile(props) {
 
   return (
     <div>
-          <div>
+          <div id='sumonner-profile'>
               <img src={props.sumonnerIconSource} id='sumonner-icon' />
-              <Text>{props.sumonnerName}</Text>
+              <Text id='sumonner-name'>{props.sumonnerName}</Text>
           </div>
     </div>
   )

@@ -24,11 +24,12 @@ function App() {
   const [isLoading, setIsLoading] = useState(false)
 
   const [sumonnerIcon, setSumonnerIcon] = useState('')
+  const [mostPlayedChampion, setMostPlayedChampion] = useState('')
   const [sumonnerName, setSumonnerName] = useState('')
   const [sumonnerTag, setSumonnerTag] = useState('')
 
-
   const sumonnerIconSource = `https://ddragon.leagueoflegends.com/cdn/14.23.1/img/profileicon/${sumonnerIcon}.png`
+  const splashSource = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostPlayedChampion}_0.jpg`
 
   function getSumonnerData(event) {
     const nameValue = document.getElementById("sumonner-name").value
@@ -63,11 +64,41 @@ function App() {
       })
   }
 
+  function getMostPlayedChampion(event) {
+
+    const nameValue = document.getElementById("sumonner-name").value
+    const [sumonnerName, sumonnerTag] = nameValue.split("#");
+
+    axios.get("http://localhost:4000/mostPlayedChampion", {params: { sumName: sumonnerName, sumTag: sumonnerTag }})
+    .then((response) => {
+      if(response.data.status != 400) {
+        setIsLoading(true);
+        setMostPlayedChampion(response.data);
+        setIsLoading(false);
+      }
+
+
+    }).catch((error) => {
+
+      
+
+    }).finally(() => {
+
+      setIsLoading(false)
+
+    })
+  }
+
+  function allData(event) {
+    getSumonnerData();
+    getMostPlayedChampion();
+  }
+
   return (
 
     <div>
     <div id='search-bar'>
-      <InputGroup endElement={<IconButton onClick={getSumonnerData} size='xs' focusable='true'><LuSearch/></IconButton>}>
+      <InputGroup endElement={<IconButton onClick={allData} size='xs' focusable='true' id='sub-btn'><LuSearch/></IconButton>}>
         <Input type='text' id='sumonner-name'  placeholder='Search a sumonner...' variant='filled' size='xl' borderRadius='20px' width={400} height={50} colorPalette={'white'}/>
       </InputGroup>
         <br/>
@@ -82,7 +113,7 @@ function App() {
       sumonnerIcon !== '' && (
         <div>
           <div id='champ'>
-              <img src='./assets/Yone_0.jpg'></img>
+              <img src={splashSource}></img>
           </div>
           <SumonnerProfile sumonnerIconSource={sumonnerIconSource} sumonnerName={sumonnerName} sumonnerTag={sumonnerTag}></SumonnerProfile>
         </div>

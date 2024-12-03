@@ -1,13 +1,28 @@
+#sumonner-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  opacity: 1;
+  animation-name: fadeInOpacity;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in;
+  animation-duration: 0.3s;
+}
+
 #sumonner-icon {
     border-radius: 100%;
     height: 50%;
     height: 250px;
-    opacity: 1;
-    animation-name: fadeInOpacity;
-    animation-iteration-count: 1;
-    animation-timing-function: ease-in;
-    animation-duration: 0.3s;
 }
+
+#sumonner-name {
+  opacity: 1;
+  animation-name: fadeInOpacity;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in;
+  animation-duration: 0.5s;
+}
+
 
 @keyframes fadeInOpacity {
   0% {

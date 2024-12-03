@@ -44,6 +44,41 @@ app.get('/sumonnerIcon', async (req, res) => {
         }
 })
 
+app.get('/mostPlayedChampion', async (req, res) => {
+
+    const playerName = encodeURIComponent(req.query.sumName);
+    const playerTag = encodeURIComponent(req.query.sumTag)
+
+    const PUUID =  await getPlayerPUUID(playerName, playerTag);
+
+    if(PUUID != undefined || PUUID != '') {
+        const API_CALL = "https://euw1.api.riotgames.com" + "/lol/champion-mastery/v4/champion-masteries/by-puuid/" + PUUID + "?api_key=" + API_KEY;
+
+        console.log(API_CALL);
+
+        const sumonnerData = await axios.get(API_CALL)
+            .then(response => 
+                response.data[0]
+            )
+            .catch(err => {
+                
+            })
+
+            const championsResponse = await axios.get(`https://ddragon.leagueoflegends.com/cdn/14.23.1/data/en_US/champion.json`);
+            const championsData = championsResponse.data.data;
+            if(sumonnerData.championId) {
+                const championName = Object.values(championsData).find(
+                    champ => champ.key === JSON.stringify(sumonnerData.championId)
+                )?.id;
+    
+                res.json(championName);
+            } else {
+                console.log('no hay id')
+            }
+    }
+
+})
+
 app.listen(4000, () => {
     console.log('server is running!');
 })
