@@ -6,6 +6,7 @@ import { Icon, IconButton, Input} from '@chakra-ui/react'
 import { InputGroup } from './components/ui/input-group'
 import { Skeleton } from '@chakra-ui/react'
 import { LuSearch } from 'react-icons/lu'
+import MatchCard from './components/matchCard/matchCard'
 
 function SkeletonCircle({ size = "50px" }) {
   return (
@@ -116,11 +117,15 @@ function App() {
               <img src={splashSource}></img>
           </div>
           <SumonnerProfile sumonnerIconSource={sumonnerIconSource} sumonnerName={sumonnerName} sumonnerTag={sumonnerTag}></SumonnerProfile>
+          <div id='match-card-container'>
+            <MatchCard championName="Yone" gameMode="Ranked Solo/Duo" time="33:59m" result="Victory"></MatchCard>
+          </div>
         </div>
       )
     )}
 
     </div>
+    
     </div>
   )
 }
