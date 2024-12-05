@@ -90,9 +90,25 @@ function App() {
     })
   }
 
+  function getPlayerMatches(event) {
+
+    const nameValue = document.getElementById("sumonner-name").value
+    const [sumonnerName, sumonnerTag] = nameValue.split("#");
+
+    axios.get("http://localhost:4000/playerMatches", {params: { sumName: sumonnerName, sumTag: sumonnerTag }})
+      .then((response) => {
+        console.log(response.data)
+      }).catch((error) => {
+
+      }).finally(()=> {
+      })
+
+  }
+
   function allData(event) {
     getSumonnerData();
     getMostPlayedChampion();
+    getPlayerMatches();
   }
 
   return (

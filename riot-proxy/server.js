@@ -54,8 +54,6 @@ app.get('/mostPlayedChampion', async (req, res) => {
     if(PUUID != undefined || PUUID != '') {
         const API_CALL = "https://euw1.api.riotgames.com" + "/lol/champion-mastery/v4/champion-masteries/by-puuid/" + PUUID + "?api_key=" + API_KEY;
 
-        console.log(API_CALL);
-
         const sumonnerData = await axios.get(API_CALL)
             .then(response => 
                 response.data[0]
@@ -77,6 +75,22 @@ app.get('/mostPlayedChampion', async (req, res) => {
             }
     }
 
+})
+
+app.get('/playerMatches', async (req, res) => {
+    const playerName = encodeURIComponent(req.query.sumName);
+    const playerTag = encodeURIComponent(req.query.sumTag)
+
+    const PUUID =  await getPlayerPUUID(playerName, playerTag);
+
+    if(PUUID != undefined || PUUID != '') {
+        const API_CALL = "https://europe.api.riotgames.com"+"/lol/match/v5/matches/by-puuid/" + PUUID + "/ids?api_key=" + API_KEY
+        
+        const matches = await axios.get(API_CALL)
+        .then(response => response.data)
+        .catch(err => err)
+    res.json(matches);
+    }
 })
 
 app.listen(4000, () => {
