@@ -39,6 +39,12 @@
   animation-duration: 0.3s;
 }
 
+#match-card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 @keyframes fadeInOpacity {
   0% {
     filter: blur(2px);

@@ -28,6 +28,7 @@ function App() {
   const [mostPlayedChampion, setMostPlayedChampion] = useState('')
   const [sumonnerName, setSumonnerName] = useState('')
   const [sumonnerTag, setSumonnerTag] = useState('')
+  const [playerMatches, setPlayerMatches] = useState([])
 
   const sumonnerIconSource = `https://ddragon.leagueoflegends.com/cdn/14.23.1/img/profileicon/${sumonnerIcon}.png`
   const splashSource = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostPlayedChampion}_0.jpg`
@@ -98,6 +99,7 @@ function App() {
     axios.get("http://localhost:4000/playerMatches", {params: { sumName: sumonnerName, sumTag: sumonnerTag }})
       .then((response) => {
         console.log(response.data)
+        setPlayerMatches(response.data)
       }).catch((error) => {
 
       }).finally(()=> {
@@ -134,7 +136,9 @@ function App() {
           </div>
           <SumonnerProfile sumonnerIconSource={sumonnerIconSource} sumonnerName={sumonnerName} sumonnerTag={sumonnerTag}></SumonnerProfile>
           <div id='match-card-container'>
-            <MatchCard championName="Yone" gameMode="Ranked Solo/Duo" time="33:59m" result="Victory"></MatchCard>
+            {playerMatches.map((index) => (
+               <MatchCard championIcon={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/champion/${index.champion}.png`}championName={index.champion} gameMode={index.mode} time={index.duration} result={index.win} item0Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item0}.png`} item1Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item1}.png`} item2Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item2}.png`} item3Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item3}.png`} item4Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item4}.png`} item5Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item5}.png`} trinketSrc={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item6}.png`} kda={index.score}></MatchCard> 
+            ))}
           </div>
         </div>
       )
