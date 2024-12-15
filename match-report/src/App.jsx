@@ -158,7 +158,6 @@ function App() {
 
   return (
     <div id="page-container">
-      {/* Input Group for Searching Summoner */}
       <InputGroup
         id='search-bar'
         endElement={
@@ -190,18 +189,7 @@ function App() {
       {/* Loading Skeleton */}
       {isLoading ? (
         <div>
-          {/* <Skeleton
-            height="480px"
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100%",
-            }}
-            loading={isLoading}
-            variant="pulse"
-          ></Skeleton>
-          <SkeletonCircle size="250px" /> */}
+
         </div>
       ) : (
         sumonnerIcon !== "" && (
@@ -210,9 +198,11 @@ function App() {
             <div 
               id='profile-block' 
               style={{
-                backgroundImage: `url(${splashSource})`, 
+                backgroundImage: `url(${splashSource}), linear-gradient(to bottom, white, black)`, 
                 backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat'
+                backgroundRepeat: 'no-repeat',
+                backgroundBlendMode: 'multiply',
+                backgroundColor: 'rgba(0, 0, 0, 0.4)'
               }}
             >
               <div id='sumonner-block'>

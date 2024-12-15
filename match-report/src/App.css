@@ -33,11 +33,14 @@
   height: 500px;
   transition: height 0.5s ease;
   position: sticky;
+  z-index: 1;
 }
+
 
 #sumonner-block {
   transition: opacity 0.5s ease;
-  z-index: 1;
+  z-index: 9999;
+  margin-top: 25px;
 }
 
 #most-played-champ {
