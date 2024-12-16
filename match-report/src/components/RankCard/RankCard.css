@@ -1,0 +1,44 @@
+#rank-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 250px;
+    width: 100%;
+}
+
+#rank-card img {
+    height: 100px;
+}
+
+#card {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 300px;
+    height: 150px;
+    background-color: rgb(26, 26, 26);    border-radius: 10px;
+    gap: 40px;
+    box-shadow: 2.5px 2px 10px rgb(0, 0, 0);
+    border-bottom: 12px solid rgb(127, 218, 105);
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#solo-duo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+#wr-data {
+    text-align: center;
+}
+
+#rank-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}

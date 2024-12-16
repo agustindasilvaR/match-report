@@ -175,6 +175,32 @@ app.get('/playerMatches', async (req, res) => {
     }
 })
 
+app.get('/getRank', async (req, res) => {
+
+    const playerName = encodeURIComponent(req.query.sumName);
+    const playerTag = encodeURIComponent(req.query.sumTag)
+
+        const PUUID =  await getPlayerPUUID(playerName, playerTag);
+
+        if(PUUID != undefined || PUUID != '') {
+            const API_CALL = "https://euw1.api.riotgames.com" + "/lol/summoner/v4/summoners/by-puuid/" + PUUID + "?api_key=" + API_KEY;
+    
+            console.log(API_CALL);
+    
+            const sumonnerId = await axios.get(API_CALL)
+                .then(response => response.data.id)
+                .catch(err => err)
+
+            const API_CALL_2 = "https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/" + sumonnerId + "?api_key=" + API_KEY
+ 
+            const sumonnerRank = await axios.get(API_CALL_2)
+                .then(response => response.data)
+                .catch(err => err)
+            res.json(sumonnerRank)
+        }
+        
+})
+
 app.listen(4000, () => {
     console.log('server is running!');
 })

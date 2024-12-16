@@ -7,6 +7,7 @@ import { InputGroup } from './components/ui/input-group'
 import { Skeleton } from '@chakra-ui/react'
 import { LuSearch } from 'react-icons/lu'
 import MatchCard from './components/matchCard/matchCard'
+import RankCard from './components/RankCard/RankCard'
 
 function SkeletonCircle({ size = "50px" }) {
   return (
@@ -29,6 +30,8 @@ function App() {
   const [sumonnerName, setSumonnerName] = useState('')
   const [sumonnerTag, setSumonnerTag] = useState('')
   const [playerMatches, setPlayerMatches] = useState([])
+  const [sumonnerRank, setSumonnerRank] = useState('')
+  const [winRate, setWinRate] = useState('')
 
   const sumonnerIconSource = `https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/${sumonnerIcon}.png`
   const splashSource = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostPlayedChampion}_0.jpg`
@@ -150,10 +153,35 @@ function App() {
 
   }
 
+  function getPlayerRank(event) {
+
+    const nameValue = document.getElementById("sumonner-name").value
+    const [sumonnerName, sumonnerTag] = nameValue.split("#");
+
+    axios.get('http://localhost:4000/getRank', {params: {sumName: sumonnerName, sumTag: sumonnerTag }})
+      .then((response) => {
+        console.log(response.data[0])
+        setSumonnerRank(response.data[0])
+        const victories = response.data[0].wins;
+        const losses = response.data[0].losses;
+        const totalGames = victories + losses;
+        setWinRate(((victories / totalGames) * 100).toFixed(0))
+
+      }).catch((error) => {
+
+      }).finally(() => {
+
+      })
+
+
+
+  }
+
   function allData(event) {
     getSumonnerData();
     getMostPlayedChampion();
     getPlayerMatches();
+    getPlayerRank();
   }
 
   return (
@@ -212,6 +240,9 @@ function App() {
                   sumonnerTag={sumonnerTag}
                 />
               </div>
+            </div>
+            <div id='rank-container'>
+              <RankCard rank={sumonnerRank.tier} tier={sumonnerRank.rank} leaguePoints={sumonnerRank.leaguePoints} wins={sumonnerRank.wins} losses={sumonnerRank.losses} wr={winRate}/>
             </div>
             <div id='match-card-container'>
               {playerMatches.map((index) => (
