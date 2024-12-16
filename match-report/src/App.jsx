@@ -30,7 +30,7 @@ function App() {
   const [sumonnerTag, setSumonnerTag] = useState('')
   const [playerMatches, setPlayerMatches] = useState([])
 
-  const sumonnerIconSource = `https://ddragon.leagueoflegends.com/cdn/14.23.1/img/profileicon/${sumonnerIcon}.png`
+  const sumonnerIconSource = `https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/${sumonnerIcon}.png`
   const splashSource = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostPlayedChampion}_0.jpg`
 
 
@@ -198,11 +198,11 @@ function App() {
             <div 
               id='profile-block' 
               style={{
-                backgroundImage: `url(${splashSource}), linear-gradient(to bottom, white, black)`, 
+                backgroundImage: `url(${splashSource})`, 
                 backgroundSize: 'cover',
                 backgroundRepeat: 'no-repeat',
                 backgroundBlendMode: 'multiply',
-                backgroundColor: 'rgba(0, 0, 0, 0.4)'
+                backgroundColor: 'rgba(0, 0, 0, 0.65)'
               }}
             >
               <div id='sumonner-block'>
@@ -215,7 +215,7 @@ function App() {
             </div>
             <div id='match-card-container'>
               {playerMatches.map((index) => (
-                <MatchCard championIcon={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/champion/${index.champion}.png`}championName={index.champion} gameMode={index.mode} time={index.duration} result={index.win} item0Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item0}.png`} item1Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item1}.png`} item2Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item2}.png`} item3Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item3}.png`} item4Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item4}.png`} item5Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item5}.png`} trinketSrc={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item6}.png`} kda={index.score}></MatchCard> 
+                <MatchCard championIcon={`https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/${index.champion}.png`}championName={index.champion} gameMode={index.mode} time={index.duration} result={index.win} item0Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item0}.png`} item1Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item1}.png`} item2Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item2}.png`} item3Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item3}.png`} item4Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item4}.png`} item5Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item5}.png`} trinketSrc={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item6}.png`} kda={index.score}></MatchCard> 
               ))}
             </div>
           </div>

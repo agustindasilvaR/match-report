@@ -64,7 +64,7 @@ app.get('/mostPlayedChampion', async (req, res) => {
                 
             })
 
-            const championsResponse = await axios.get(`https://ddragon.leagueoflegends.com/cdn/14.23.1/data/en_US/champion.json`);
+            const championsResponse = await axios.get(`https://ddragon.leagueoflegends.com/cdn/14.24.1/data/en_US/champion.json`);
             const championsData = championsResponse.data.data;
             if(sumonnerData.championId) {
                 const championName = Object.values(championsData).find(
