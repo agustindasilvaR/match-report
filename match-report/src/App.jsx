@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import axios from 'axios'
-import SumonnerProfile from './components/sumonnerProfile/sumonnerProfile'
+import SumonnerProfile from './components/sumonnerProfile/SumonnerProfile'
 import { Icon, IconButton, Input} from '@chakra-ui/react'
 import { InputGroup } from './components/ui/input-group'
 import { Skeleton } from '@chakra-ui/react'
@@ -32,47 +32,60 @@ function App() {
   const [playerMatches, setPlayerMatches] = useState([])
   const [sumonnerRank, setSumonnerRank] = useState('')
   const [winRate, setWinRate] = useState('')
+  const [gameVersion, setGameVersion] = useState('');
 
-  const sumonnerIconSource = `https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/${sumonnerIcon}.png`
+  const getCurrentVersion = async () => {
+  
+    const response = await fetch('https://ddragon.leagueoflegends.com/api/versions.json')
+ 
+    const versions = await response.json();
+ 
+    setGameVersion(versions[0]);
+ 
+   }
+ 
+   getCurrentVersion();
+   console.log(gameVersion);
+
+  const sumonnerIconSource = `https://ddragon.leagueoflegends.com/cdn/${gameVersion}/img/profileicon/${sumonnerIcon}.png`
   const splashSource = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostPlayedChampion}_0.jpg`
+  
+
+
+
+
 
 
   document.addEventListener('scroll', () => {
     const target = document.getElementById('champ')
 
     const scrollAmount = window.scrollY;
-
-    // Ajusta el valor del blur basado en la posición del scroll
     const blurValue = scrollAmount > 100 ? Math.min((scrollAmount - 100) / 10, 2) : 0;
     target.style.filter = `blur(${blurValue}px)`;
   })
 
   const profileBlock = document.getElementById('profile-block');
   const sumonnerBlock = document.getElementById('sumonner-block');
-  const defaultHeight = 500; // Altura inicial en px
-  const minHeight = 100; // Altura mínima en px
+  const defaultHeight = 500;
+  const minHeight = 100;
   
   window.addEventListener('scroll', () => {
     const scrollPosition = window.scrollY;
     
-    // Calcula la nueva altura (disminuye progresivamente)
     let newHeight = defaultHeight - scrollPosition;
     if (newHeight < minHeight) {
       newHeight = minHeight;
     }
     
-    // Aplica la nueva altura al bloque
     profileBlock.style.height = `${newHeight}px`;
   
-    // Calcula la opacidad basada en la altura restante
     let opacity = Math.max(0, Math.min(1, (newHeight - minHeight) / (defaultHeight - minHeight) - 0.5));
 
-    // Si el height actual es igual al defaultHeight, fuerza la opacidad a 1
     if (newHeight === defaultHeight) {
       opacity = 1;
     }
 
-    const maxBlur = 8; // Máximo desenfoque en px
+    const maxBlur = 8;
     const blur = ((defaultHeight - newHeight) / (defaultHeight - minHeight)) * maxBlur;
     profileBlock.style.filter = `blur(${blur.toFixed(2)}px)`;
     sumonnerBlock.style.opacity = opacity.toFixed(2); // Ajusta la opacidad
@@ -213,15 +226,13 @@ function App() {
           colorPalette="white"
         />
       </InputGroup>
-  
-      {/* Loading Skeleton */}
+
       {isLoading ? (
         <div>
 
         </div>
       ) : (
         sumonnerIcon !== "" && (
-          // Summoner Profile Section
           <div>
             <div 
               id='profile-block' 
@@ -246,7 +257,7 @@ function App() {
             </div>
             <div id='match-card-container'>
               {playerMatches.map((index) => (
-                <MatchCard championIcon={`https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/${index.champion}.png`}championName={index.champion} gameMode={index.mode} time={index.duration} result={index.win} item0Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item0}.png`} item1Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item1}.png`} item2Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item2}.png`} item3Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item3}.png`} item4Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item4}.png`} item5Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item5}.png`} trinketSrc={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item6}.png`} kda={index.score}></MatchCard> 
+                <MatchCard championIcon={`https://ddragon.leagueoflegends.com/cdn/${gameVersion}/img/champion/${index.championDisplayName}.png`} championName={index.championTextName} gameMode={index.mode} time={index.duration} result={index.win} item0Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item0}.png`} item1Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item1}.png`} item2Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item2}.png`} item3Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item3}.png`} item4Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item4}.png`} item5Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item5}.png`} trinketSrc={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item6}.png`} kda={index.score}></MatchCard> 
               ))}
             </div>
           </div>

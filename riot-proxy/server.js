@@ -1,15 +1,45 @@
 let express = require('express');
 let cors = require('cors');
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
+
 
 let app = express();
 
 app.use(cors());
 
 const API_KEY = "RGAPI-dffedfdd-9f07-4c68-9674-2ae2690e05bb";
-// const queues = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/queues.json')));
+
+let championNameMap = {};
+
+const getCurrentVersion = async () => {
+    try {
+        const response = await fetch('https://ddragon.leagueoflegends.com/api/versions.json');
+        const versions = await response.json();
+        return versions[0];
+    } catch (error) {
+        console.error('Error al obtener la versión actual:', error);
+        throw error;
+    }
+};
+
+const loadChampionData = async () => {
+    try {
+        const currentVersion = await getCurrentVersion(); 
+        const response = await axios.get(`https://ddragon.leagueoflegends.com/cdn/${currentVersion}/data/en_US/champion.json`);
+        const champions = response.data.data;
+
+        for (const champKey in champions) {
+            const champion = champions[champKey];
+            championNameMap[champion.id] = champion.name;
+        }
+        console.log('Champion data loaded successfully.');
+    } catch (error) {
+        console.error('Error loading champion data:', error);
+    }
+};
+
+loadChampionData();
+
 
 function getPlayerPUUID(playerName, playerTag) {
     return axios.get("https://europe.api.riotgames.com" + "/riot/account/v1/accounts/by-riot-id/" + playerName + "/" + playerTag + "?api_key=" + API_KEY)
@@ -24,14 +54,13 @@ function getPlayerPUUID(playerName, playerTag) {
         });
 }
 
-// GET sumnonnerIcon
-// localhost:4000/sumonnerIcon
+
 app.get('/sumonnerIcon', async (req, res) => {
 
     const playerName = encodeURIComponent(req.query.sumName);
     const playerTag = encodeURIComponent(req.query.sumTag);
 
-    // get puuid
+
         const PUUID =  await getPlayerPUUID(playerName, playerTag);
 
         if(PUUID != undefined || PUUID != '') {
@@ -132,6 +161,10 @@ app.get('/playerMatches', async (req, res) => {
                     2010: "Tutorial 2",
                     2020: "Tutorial 3",
                 };
+                const championMap = {
+                    AurelionSol: "Aurelion Sol",
+                    Kaisa: "Kai'Sa"
+                };
 
                 function formatGameDuration(seconds) {
                     const minutes = Math.floor(seconds / 60);
@@ -144,6 +177,10 @@ app.get('/playerMatches', async (req, res) => {
                     return queueMap[queueId] || "Unknown Mode";
                 }
 
+                function getChampionName(champion) {
+                    return championNameMap[champion] || "Unknown champion";
+                }
+
                 if(playerData.win === true) {
                     playerData.win = "Victory"
                 } else {
@@ -152,7 +189,8 @@ app.get('/playerMatches', async (req, res) => {
 
                 playerMatches.push({
                     match,
-                    champion: playerData.championName,
+                    championTextName: getChampionName(playerData.championName),
+                    championDisplayName: playerData.championName,
                     kills: playerData.kills,
                     deaths: playerData.deaths,
                     assists: playerData.assists,
