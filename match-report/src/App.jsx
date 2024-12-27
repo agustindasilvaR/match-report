@@ -6,7 +6,7 @@ import { Icon, IconButton, Input} from '@chakra-ui/react'
 import { InputGroup } from './components/ui/input-group'
 import { Skeleton } from '@chakra-ui/react'
 import { LuSearch } from 'react-icons/lu'
-import MatchCard from './components/matchCard/matchCard'
+import MatchCard from './components/matchCard/MatchCard'
 import RankCard from './components/RankCard/RankCard'
 
 function SkeletonCircle({ size = "50px" }) {
@@ -31,8 +31,10 @@ function App() {
   const [sumonnerTag, setSumonnerTag] = useState('')
   const [playerMatches, setPlayerMatches] = useState([])
   const [sumonnerRank, setSumonnerRank] = useState('')
+  const [sumonnerLevel, setSumonnerLevel] = useState('')
   const [winRate, setWinRate] = useState('')
   const [gameVersion, setGameVersion] = useState('');
+  const [itemData, setItemData] = useState('');
 
   const getCurrentVersion = async () => {
   
@@ -43,9 +45,14 @@ function App() {
     setGameVersion(versions[0]);
  
    }
+
  
    getCurrentVersion();
-   console.log(gameVersion);
+
+
+
+
+
 
   const sumonnerIconSource = `https://ddragon.leagueoflegends.com/cdn/${gameVersion}/img/profileicon/${sumonnerIcon}.png`
   const splashSource = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostPlayedChampion}_0.jpg`
@@ -104,7 +111,8 @@ function App() {
           setIsLoading(true);
           setSumonnerName(sumonnerName)
           setSumonnerTag(sumonnerTag)
-          setSumonnerIcon(response.data);
+          setSumonnerIcon(response.data.profileIconId);
+          setSumonnerLevel(response.data.summonerLevel)
           setIsLoading(false)
         } else {
           setSumonnerIcon('')
@@ -112,7 +120,6 @@ function App() {
           setSumonnerIcon('');
         }
 
-        console.log(response.data)
 
       }).catch((error) => {
 
@@ -157,7 +164,6 @@ function App() {
 
     axios.get("http://localhost:4000/playerMatches", {params: { sumName: sumonnerName, sumTag: sumonnerTag }})
       .then((response) => {
-        console.log(response.data)
         setPlayerMatches(response.data)
       }).catch((error) => {
 
@@ -173,7 +179,6 @@ function App() {
 
     axios.get('http://localhost:4000/getRank', {params: {sumName: sumonnerName, sumTag: sumonnerTag }})
       .then((response) => {
-        console.log(response.data[0])
         setSumonnerRank(response.data[0])
         const victories = response.data[0].wins;
         const losses = response.data[0].losses;
@@ -248,6 +253,7 @@ function App() {
                 <SumonnerProfile
                   sumonnerIconSource={sumonnerIconSource}
                   sumonnerName={sumonnerName}
+                  sumonnerLevel={sumonnerLevel}
                   sumonnerTag={sumonnerTag}
                 />
               </div>
@@ -257,7 +263,7 @@ function App() {
             </div>
             <div id='match-card-container'>
               {playerMatches.map((index) => (
-                <MatchCard championIcon={`https://ddragon.leagueoflegends.com/cdn/${gameVersion}/img/champion/${index.championDisplayName}.png`} championName={index.championTextName} gameMode={index.mode} time={index.duration} result={index.win} item0Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item0}.png`} item1Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item1}.png`} item2Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item2}.png`} item3Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item3}.png`} item4Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item4}.png`} item5Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item5}.png`} trinketSrc={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item6}.png`} kda={index.score}></MatchCard> 
+                <MatchCard championIcon={`https://ddragon.leagueoflegends.com/cdn/${gameVersion}/img/champion/${index.championDisplayName}.png`} championName={index.championTextName} gameMode={index.mode} time={index.duration} result={index.win} item0Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item0}.png`} item1Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item1}.png`} item2Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item2}.png`} item3Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item3}.png`} item4Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item4}.png`} item5Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item5}.png`} trinketSrc={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item6}.png`} kda={index.score} itemName1={index.itemName0} itemName2={index.itemName1} itemName3={index.itemName2} itemName4={index.itemName3} itemName5={index.itemName4} itemName6={index.itemName5} trinketName={index.itemName6}></MatchCard> 
               ))}
             </div>
           </div>

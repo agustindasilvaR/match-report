@@ -1,5 +1,5 @@
 import './SumonnerProfile.css'
-import { Text } from '@chakra-ui/react'
+import { Text, Badge } from '@chakra-ui/react'
 
 function SumonnerProfile(props) {
 
@@ -8,6 +8,7 @@ function SumonnerProfile(props) {
           <div id='sumonner-profile'>
               <img src={props.sumonnerIconSource} id='sumonner-icon' />
               <Text id='sumonner-name'>{props.sumonnerName}</Text>
+              <Badge variant={'subtle'} size={'lg'}>Level {props.sumonnerLevel}</Badge>
           </div>
     </div>
   )

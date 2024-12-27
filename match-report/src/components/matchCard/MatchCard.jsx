@@ -1,5 +1,6 @@
 import React  from "react";
 import { Text } from "@chakra-ui/react";
+import { Tooltip } from "react-tooltip";
 import './MatchCard.css';
 
 export default function MatchCard(props) {
@@ -27,26 +28,33 @@ export default function MatchCard(props) {
                 </div>
                 <div id="items">
                     <div className='item' id="item1">
-                        {props.item0Src && !props.item0Src.includes('/0.png') && <img src={props.item0Src} />}
+                    <Tooltip id="itemName1"/>
+                            {props.item0Src && !props.item0Src.includes('/0.png') && <img src={props.item0Src} data-tooltip-id="itemName1" data-tooltip-content={props.itemName1} data-tooltip-place="top"/>}
                     </div>
                     <div className='item' id="item2">
-                        {props.item1Src && !props.item1Src.includes('/0.png') && <img src={props.item1Src} />}
+                    <Tooltip id="itemName2" />
+                        {props.item1Src && !props.item1Src.includes('/0.png') && <img src={props.item1Src} data-tooltip-id="itemName2" data-tooltip-content={props.itemName2} data-tooltip-place="top"/>}
                     </div>
                     <div className='item' id="item3">
-                        {props.item2Src && !props.item2Src.includes('/0.png') && <img src={props.item2Src} />}
+                    <Tooltip id="itemName3" />
+                        {props.item2Src && !props.item2Src.includes('/0.png') && <img src={props.item2Src} data-tooltip-id="itemName3" data-tooltip-content={props.itemName3} data-tooltip-place="top"/>}
                     </div>
                     <div className='item' id="item4">
-                        {props.item3Src && !props.item3Src.includes('/0.png') && <img src={props.item3Src} />}
+                    <Tooltip id="itemName4" />
+                        {props.item3Src && !props.item3Src.includes('/0.png') && <img src={props.item3Src} data-tooltip-id="itemName4" data-tooltip-content={props.itemName4} data-tooltip-place="bottom"/>}
                     </div>
                     <div className='item' id="item5">
-                        {props.item4Src && !props.item4Src.includes('/0.png') && <img src={props.item4Src} />}
+                    <Tooltip id="itemName5" />
+                        {props.item4Src && !props.item4Src.includes('/0.png') && <img src={props.item4Src} data-tooltip-id="itemName5" data-tooltip-content={props.itemName5} data-tooltip-place="bottom"/>}
                     </div>
                     <div className='item' id="item6">
-                        {props.item5Src && !props.item5Src.includes('/0.png') && <img src={props.item5Src} />}
+                    <Tooltip id="itemName6" />
+                        {props.item5Src && !props.item5Src.includes('/0.png') && <img src={props.item5Src} data-tooltip-id="itemName6" data-tooltip-content={props.itemName6} data-tooltip-place="bottom"/>}
                     </div>
                  </div>
                 <div className='item' id="trinket">
-                    {props.trinketSrc && !props.trinketSrc.includes('/0.png') && <img src={props.trinketSrc} />}
+                    <Tooltip id="trinketName" delayShow={300} />
+                    {props.trinketSrc && !props.trinketSrc.includes('/0.png') && <img src={props.trinketSrc} data-tooltip-id="trinketName" data-tooltip-content={props.trinketName} />}
                 </div>
                 <div id="kda">
                     <Text>{props.kda}</Text>

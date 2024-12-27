@@ -10,6 +10,7 @@ app.use(cors());
 const API_KEY = "RGAPI-dffedfdd-9f07-4c68-9674-2ae2690e05bb";
 
 let championNameMap = {};
+let itemData = {}
 
 const getCurrentVersion = async () => {
     try {
@@ -38,8 +39,18 @@ const loadChampionData = async () => {
     }
 };
 
-loadChampionData();
+const fetchItemData = async (version) => {
+    const currentVersion = await getCurrentVersion();
+    const response = await fetch(`https://ddragon.leagueoflegends.com/cdn/${currentVersion}/data/en_GB/item.json`);
+    const data = await response.json();
+    itemData = data.data
+    return data.data;
+  };
 
+
+
+loadChampionData();
+fetchItemData();
 
 function getPlayerPUUID(playerName, playerTag) {
     return axios.get("https://europe.api.riotgames.com" + "/riot/account/v1/accounts/by-riot-id/" + playerName + "/" + playerTag + "?api_key=" + API_KEY)
@@ -69,8 +80,9 @@ app.get('/sumonnerIcon', async (req, res) => {
             console.log(API_CALL);
     
             const sumonnerData = await axios.get(API_CALL)
-                .then(response => response.data.profileIconId)
+                .then(response => response.data)
                 .catch(err => err)
+            console.log(sumonnerData)
             res.json(sumonnerData);
         }
 })
@@ -113,6 +125,10 @@ app.get('/playerMatches', async (req, res) => {
     const playerTag = encodeURIComponent(req.query.sumTag)
 
     const PUUID =  await getPlayerPUUID(playerName, playerTag);
+
+    const getItemName = (itemId, itemData) => {
+        return itemData[itemId] ? itemData[itemId].name : 'Desconocido';
+    };
 
     if(PUUID != undefined || PUUID != '') {
         const API_CALL = "https://europe.api.riotgames.com"+"/lol/match/v5/matches/by-puuid/" + PUUID + "/ids?api_key=" + API_KEY
@@ -202,6 +218,13 @@ app.get('/playerMatches', async (req, res) => {
                     item4: playerData.item4,
                     item5: playerData.item5,
                     item6: playerData.item6,
+                    itemName0: getItemName(playerData.item0, itemData),
+                    itemName1: getItemName(playerData.item1, itemData),
+                    itemName2: getItemName(playerData.item2, itemData),
+                    itemName3: getItemName(playerData.item3, itemData),
+                    itemName4: getItemName(playerData.item4, itemData),
+                    itemName5: getItemName(playerData.item5, itemData),
+                    itemName6: getItemName(playerData.item6, itemData),
                     win: playerData.win,
                     duration: formatGameDuration(matchData.info.gameDuration),
                     mode: getGameMode(matchData.info.queueId)
