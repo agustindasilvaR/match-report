@@ -40,9 +40,11 @@ function App() {
   const [sumonnerName, setSumonnerName] = useState('')
   const [sumonnerTag, setSumonnerTag] = useState('')
   const [playerMatches, setPlayerMatches] = useState([])
-  const [sumonnerRank, setSumonnerRank] = useState('')
+  const [sumonnerRankSolo, setSumonnerRankSolo] = useState('')
+  const [sumonnerRankFlex, setSumonnerRankFlex] = useState('')
   const [sumonnerLevel, setSumonnerLevel] = useState('')
-  const [winRate, setWinRate] = useState('')
+  const [winRateSolo, setWinRateSolo] = useState(0)
+  const [winRateFlex, setWinRateFlex] = useState(0)
   const [gameVersion, setGameVersion] = useState('');
   const [itemData, setItemData] = useState('');
   const [visibleCount, setVisibleCount] = useState(5); // Number of MatchCards to display initially
@@ -60,6 +62,13 @@ function App() {
 
  
    getCurrentVersion();
+
+   const clearSummonerData = () => {
+    setSumonnerRankSolo(null);
+    setSumonnerRankFlex(null);
+    setWinRateSolo(0);
+    setWinRateFlex(0);
+  };
 
 
 
@@ -199,11 +208,19 @@ function App() {
 
     axios.get('http://localhost:4000/getRank', {params: {sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
-        setSumonnerRank(response.data[0])
-        const victories = response.data[0].wins;
-        const losses = response.data[0].losses;
-        const totalGames = victories + losses;
-        setWinRate(((victories / totalGames) * 100).toFixed(0))
+        console.log(response.data[1])
+        setSumonnerRankSolo(response.data[0])
+        setSumonnerRankFlex(response.data[1])
+        const victoriesSolo = response.data[0].wins;
+        const lossesSolo = response.data[0].losses;
+        const totalGamesSolo = victoriesSolo + lossesSolo;
+        setWinRateSolo(((victoriesSolo / totalGamesSolo) * 100).toFixed(0))
+
+
+        const victoriesFlex = response.data[1].wins;
+        const lossesFlex = response.data[1].losses;
+        const totalGamesFlex = victoriesFlex + lossesFlex;
+        setWinRateFlex(((victoriesFlex / totalGamesFlex) * 100).toFixed(0))
 
       }).catch((error) => {
 
@@ -216,6 +233,7 @@ function App() {
   }
 
   function allData(event) {
+    clearSummonerData();
     getSumonnerData();
     getMostPlayedChampion();
     getPlayerMatches();
@@ -299,12 +317,18 @@ function App() {
             </div>
             <div id='rank-container'>
               <RankCard 
-                rank={sumonnerRank?.tier || "UNRANKED"} 
-                tier={sumonnerRank?.rank || ""} 
-                leaguePoints={sumonnerRank?.leaguePoints ?? 0} 
-                wins={sumonnerRank?.wins ?? 0} 
-                losses={sumonnerRank?.losses ?? 0} 
-                wr={winRate ?? 0} 
+                rank={sumonnerRankSolo?.tier || "UNRANKED"} 
+                tier={sumonnerRankSolo?.rank || ""} 
+                leaguePoints={sumonnerRankSolo?.leaguePoints ?? 0} 
+                wins={sumonnerRankSolo?.wins ?? 0} 
+                losses={sumonnerRankSolo?.losses ?? 0} 
+                wr={winRateSolo ?? 0}
+                rankFlex={sumonnerRankFlex?.tier || "UNRANKED"}
+                tierFlex={sumonnerRankFlex?.rank || ""}
+                leaguePointsFlex={sumonnerRankFlex?.leaguePoints ?? 0}
+                winsFlex={sumonnerRankFlex?.wins ?? 0}
+                lossesFlex={sumonnerRankFlex?.losses ?? 0}
+                wrFlex={winRateFlex ?? 0}
               />
             </div>
             <div id="match-card-container">

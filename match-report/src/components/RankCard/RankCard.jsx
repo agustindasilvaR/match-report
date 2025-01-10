@@ -30,15 +30,15 @@ export default function RankCard(props) {
                         <AccordionItemContent>
                             <div id="solo-duo">
                             <div id="rank-info">
-                                <img src={`/assets/rank/Rank=${props.rank}.png`}/>
+                                <img src={`/assets/rank/Rank=${props.rankFlex}.png`}/>
                                 <div id="text">
-                                    <Text fontWeight="bold" textStyle="sm">Gold IV</Text>
-                                    <Text fontWeight="normal" textStyle="sm">{props.leaguePoints} LP</Text>
+                                    <Text fontWeight="bold" textStyle="sm">{props.rankFlex} {props.tierFlex}</Text>
+                                    <Text fontWeight="normal" textStyle="sm">{props.leaguePointsFlex} LP</Text>
                                 </div>
                             </div>
                             <div id="wr-data">
-                                <Text fontWeight="normal" textStyle="xs">{props.wins}W - {props.losses}L</Text>
-                                <Text fontWeight="normal" textStyle="xs">{props.wr}% WR</Text>
+                                <Text fontWeight="normal" textStyle="xs">{props.winsFlex}W - {props.lossesFlex}L</Text>
+                                <Text fontWeight="normal" textStyle="xs">{props.wrFlex}% WR</Text>
                             </div>
                             </div>
                         </AccordionItemContent>
