@@ -58,6 +58,7 @@ export default function MatchCard(props) {
                 </div>
                 <div id="kda">
                     <Text>{props.kda}</Text>
+                    <Text textStyle="xs">{props.minions} CS</Text>
                 </div>
                 <div id="result">
                     <Text id="result" fontWeight="bold" style={resultTextStyle}>{props.result}</Text>

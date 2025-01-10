@@ -23,6 +23,7 @@
   width: 100vw;
   align-items: center;
   /* padding-top: 150px; */
+  padding-bottom: 50px;
   z-index: 1000;
 }
 
@@ -45,4 +46,9 @@
 
 #most-played-champ {
   filter: blur(5px);
+}
+
+#footer {
+  position: fixed;
+  left: 0;
 }

@@ -11,6 +11,25 @@ const API_KEY = "RGAPI-dffedfdd-9f07-4c68-9674-2ae2690e05bb";
 
 let championNameMap = {};
 let itemData = {}
+const regionMapping = {
+    EUW: { global: "europe", specific: "euw1" },
+    EUNE: { global: "europe", specific: "eun1" },
+    NA: { global: "americas", specific: "na1" },
+    LAN: { global: "americas", specific: "la1" },
+    LAS: { global: "americas", specific: "la2" },
+    BR: { global: "americas", specific: "br1" },
+    KR: { global: "asia", specific: "kr" },
+    JP: { global: "asia", specific: "jp1" },
+    OCE: { global: "sea", specific: "oc1" },
+    TR: { global: "europe", specific: "tr1" },
+    PH: { global: "sea", specific: "ph2" },
+    SG: { global: "sea", specific: "sg2" },
+    TH: { global: "sea", specific: "th2" },
+    TW: { global: "sea", specific: "tw2" },
+    VN: { global: "sea", specific: "vn2" },
+    ME: { global: "asia", specific: "me" }
+};
+
 
 const getCurrentVersion = async () => {
     try {
@@ -52,50 +71,162 @@ const fetchItemData = async (version) => {
 loadChampionData();
 fetchItemData();
 
-function getPlayerPUUID(playerName, playerTag) {
-    return axios.get("https://europe.api.riotgames.com" + "/riot/account/v1/accounts/by-riot-id/" + playerName + "/" + playerTag + "?api_key=" + API_KEY)
+function getPlayerPUUID(playerName, playerTag, region) {
+    const regionMapping = {
+        EUW: { global: "europe", specific: "euw1" },
+        EUNE: { global: "europe", specific: "eun1" },
+        NA: { global: "americas", specific: "na1" },
+        LAN: { global: "americas", specific: "la1" },
+        LAS: { global: "americas", specific: "la2" },
+        BR: { global: "americas", specific: "br1" },
+        KR: { global: "asia", specific: "kr" },
+        JP: { global: "asia", specific: "jp1" },
+        OCE: { global: "sea", specific: "oc1" },
+        TR: { global: "europe", specific: "tr1" },
+        PH: { global: "sea", specific: "ph2" },
+        SG: { global: "sea", specific: "sg2" },
+        TH: { global: "sea", specific: "th2" },
+        TW: { global: "sea", specific: "tw2" },
+        VN: { global: "sea", specific: "vn2" },
+        ME: { global: "asia", specific: "me" }
+    };
+
+    // Verifica si la región existe en el mapeo
+    const selectedRegion = regionMapping[region];
+    if (!selectedRegion) {
+        return Promise.reject(new Error("Invalid region provided"));
+    }
+
+    const globalRegion = selectedRegion.global;
+
+    return axios
+        .get(
+            `https://${globalRegion}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${playerName}/${playerTag}?api_key=${API_KEY}`
+        )
         .then(response => {
-            return response.data.puuid;
-        }).catch(error => {
-            if(error.response && error.response.status === 503) {
-                console.log('is 503')
-                return getPlayerPUUID(playerName, playerTag)
+            // Retorna un objeto con gameName y puuid
+            return {
+                gameName: response.data.gameName,
+                puuid: response.data.puuid
+            };
+        })
+        .catch(error => {
+            if (error.response && error.response.status === 503) {
+                console.log("is 503, retrying...");
+                return getPlayerPUUID(playerName, playerTag, region);
             }
-            console.error('Error fetching PUUID', error.message)
+            console.error("Error fetching PUUID:", error.message);
+            throw error; // Propaga el error para manejarlo en la llamada
         });
 }
 
 
-app.get('/sumonnerIcon', async (req, res) => {
 
+app.get('/sumonnerIcon', async (req, res) => {
     const playerName = encodeURIComponent(req.query.sumName);
     const playerTag = encodeURIComponent(req.query.sumTag);
+    const region = req.query.region;
 
+    const regionMapping = {
+        EUW: { global: "europe", specific: "euw1" },
+        EUNE: { global: "europe", specific: "eun1" },
+        NA: { global: "americas", specific: "na1" },
+        LAN: { global: "americas", specific: "la1" },
+        LAS: { global: "americas", specific: "la2" },
+        BR: { global: "americas", specific: "br1" },
+        KR: { global: "asia", specific: "kr" },
+        JP: { global: "asia", specific: "jp1" },
+        OCE: { global: "sea", specific: "oc1" },
+        TR: { global: "europe", specific: "tr1" },
+        PH: { global: "sea", specific: "ph2" },
+        SG: { global: "sea", specific: "sg2" },
+        TH: { global: "sea", specific: "th2" },
+        TW: { global: "sea", specific: "tw2" },
+        VN: { global: "sea", specific: "vn2" },
+        ME: { global: "asia", specific: "me" }
+    };
 
-        const PUUID =  await getPlayerPUUID(playerName, playerTag);
+    // Verifica si la región existe en el mapeo
+    const selectedRegion = regionMapping[region];
+    if (!selectedRegion) {
+        return res.status(400).json({ error: "Invalid region" });
+    }
 
-        if(PUUID != undefined || PUUID != '') {
-            const API_CALL = "https://euw1.api.riotgames.com" + "/lol/summoner/v4/summoners/by-puuid/" + PUUID + "?api_key=" + API_KEY;
-    
+    const globalRegion = selectedRegion.global;
+    const specificRegion = selectedRegion.specific;
+
+    try {
+        const PUUID = await getPlayerPUUID(playerName, playerTag, region);
+        console.log(PUUID.puuid);
+        console.log(PUUID.gameName);
+
+        if (PUUID && PUUID.puuid) {
+            const API_CALL = `https://${specificRegion}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${PUUID.puuid}?api_key=${API_KEY}`;
             console.log(API_CALL);
-    
-            const sumonnerData = await axios.get(API_CALL)
+
+            const summonerData = await axios
+                .get(API_CALL)
                 .then(response => response.data)
-                .catch(err => err)
-            console.log(sumonnerData)
-            res.json(sumonnerData);
+                .catch(err => {
+                    console.error("Error fetching summoner data:", err.message);
+                    return null;
+                });
+
+            if (summonerData) {
+                // Agrega el campo gameName al objeto summonerData
+                summonerData.gameName = PUUID.gameName;
+
+                console.log(summonerData);
+                return res.json(summonerData);
+            } else {
+                return res.status(404).json({ error: "Summoner data not found" });
+            }
+        } else {
+            return res.status(400).json({ error: "Invalid PUUID" });
         }
-})
+    } catch (error) {
+        console.error("Error:", error.message);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 
 app.get('/mostPlayedChampion', async (req, res) => {
 
     const playerName = encodeURIComponent(req.query.sumName);
     const playerTag = encodeURIComponent(req.query.sumTag)
+    const region = req.query.region
 
-    const PUUID =  await getPlayerPUUID(playerName, playerTag);
+    const regionMapping = {
+        EUW: { global: "europe", specific: "euw1" },
+        EUNE: { global: "europe", specific: "eun1" },
+        NA: { global: "americas", specific: "na1" },
+        LAN: { global: "americas", specific: "la1" },
+        LAS: { global: "americas", specific: "la2" },
+        BR: { global: "americas", specific: "br1" },
+        KR: { global: "asia", specific: "kr" },
+        JP: { global: "asia", specific: "jp1" },
+        OCE: { global: "sea", specific: "oc1" },
+        TR: { global: "europe", specific: "tr1" },
+        PH: { global: "sea", specific: "ph2" },
+        SG: { global: "sea", specific: "sg2" },
+        TH: { global: "sea", specific: "th2" },
+        TW: { global: "sea", specific: "tw2" },
+        VN: { global: "sea", specific: "vn2" },
+        ME: { global: "asia", specific: "me" }
+    };
+
+    // Verifica si la región existe en el mapeo
+        const selectedRegion = regionMapping[region];
+
+
+        const globalRegion = selectedRegion.global;
+        const specificRegion = selectedRegion.specific;
+
+    const PUUID =  await getPlayerPUUID(playerName, playerTag, region);
 
     if(PUUID != undefined || PUUID != '') {
-        const API_CALL = "https://euw1.api.riotgames.com" + "/lol/champion-mastery/v4/champion-masteries/by-puuid/" + PUUID + "?api_key=" + API_KEY;
+        const API_CALL = "https://" + specificRegion + ".api.riotgames.com" + "/lol/champion-mastery/v4/champion-masteries/by-puuid/" + PUUID.puuid + "?api_key=" + API_KEY;
 
         const sumonnerData = await axios.get(API_CALL)
             .then(response => 
@@ -123,15 +254,42 @@ app.get('/mostPlayedChampion', async (req, res) => {
 app.get('/playerMatches', async (req, res) => {
     const playerName = encodeURIComponent(req.query.sumName);
     const playerTag = encodeURIComponent(req.query.sumTag)
+    const region = req.query.region
 
-    const PUUID =  await getPlayerPUUID(playerName, playerTag);
+    const regionMapping = {
+        EUW: { global: "europe", specific: "euw1" },
+        EUNE: { global: "europe", specific: "eun1" },
+        NA: { global: "americas", specific: "na1" },
+        LAN: { global: "americas", specific: "la1" },
+        LAS: { global: "americas", specific: "la2" },
+        BR: { global: "americas", specific: "br1" },
+        KR: { global: "asia", specific: "kr" },
+        JP: { global: "asia", specific: "jp1" },
+        OCE: { global: "sea", specific: "oc1" },
+        TR: { global: "europe", specific: "tr1" },
+        PH: { global: "sea", specific: "ph2" },
+        SG: { global: "sea", specific: "sg2" },
+        TH: { global: "sea", specific: "th2" },
+        TW: { global: "sea", specific: "tw2" },
+        VN: { global: "sea", specific: "vn2" },
+        ME: { global: "asia", specific: "me" }
+    };
+
+    // Verifica si la región existe en el mapeo
+        const selectedRegion = regionMapping[region];
+
+
+        const globalRegion = selectedRegion.global;
+        const specificRegion = selectedRegion.specific;
+
+    const PUUID =  await getPlayerPUUID(playerName, playerTag, region);
 
     const getItemName = (itemId, itemData) => {
         return itemData[itemId] ? itemData[itemId].name : 'Desconocido';
     };
 
     if(PUUID != undefined || PUUID != '') {
-        const API_CALL = "https://europe.api.riotgames.com"+"/lol/match/v5/matches/by-puuid/" + PUUID + "/ids?api_key=" + API_KEY
+        const API_CALL = "https://" + globalRegion+ ".api.riotgames.com"+"/lol/match/v5/matches/by-puuid/" + PUUID.puuid + "/ids?api_key=" + API_KEY
         
         const matches = await axios.get(API_CALL)
         .then(response => response.data)
@@ -140,12 +298,12 @@ app.get('/playerMatches', async (req, res) => {
 
         const playerMatches = []
         for(const match of matches) {
-            const API_CALL_2 = "https://europe.api.riotgames.com" +"/lol/match/v5/matches/" + match + "?api_key=" + API_KEY
+            const API_CALL_2 = "https://" + globalRegion +".api.riotgames.com" +"/lol/match/v5/matches/" + match + "?api_key=" + API_KEY
             const matchData = await axios.get(API_CALL_2)
                 .then(response => response.data)
                 .catch(err => { throw err });
 
-            const playerData = matchData.info.participants.find(player => player.puuid === PUUID);
+            const playerData = matchData.info.participants.find(player => player.puuid === PUUID.puuid);
             if(playerData) {
 
                 const queueMap = {
@@ -211,6 +369,7 @@ app.get('/playerMatches', async (req, res) => {
                     deaths: playerData.deaths,
                     assists: playerData.assists,
                     score: `${playerData.kills}/${playerData.deaths}/${playerData.assists}`,
+                    minionsKilled: playerData.totalMinionsKilled + playerData.neutralMinionsKilled,
                     item0: playerData.item0,
                     item1: playerData.item1,
                     item2: playerData.item2,
@@ -240,11 +399,39 @@ app.get('/getRank', async (req, res) => {
 
     const playerName = encodeURIComponent(req.query.sumName);
     const playerTag = encodeURIComponent(req.query.sumTag)
+    const region = req.query.region
 
-        const PUUID =  await getPlayerPUUID(playerName, playerTag);
+    const regionMapping = {
+        EUW: { global: "europe", specific: "euw1" },
+        EUNE: { global: "europe", specific: "eun1" },
+        NA: { global: "americas", specific: "na1" },
+        LAN: { global: "americas", specific: "la1" },
+        LAS: { global: "americas", specific: "la2" },
+        BR: { global: "americas", specific: "br1" },
+        KR: { global: "asia", specific: "kr" },
+        JP: { global: "asia", specific: "jp1" },
+        OCE: { global: "sea", specific: "oc1" },
+        TR: { global: "europe", specific: "tr1" },
+        PH: { global: "sea", specific: "ph2" },
+        SG: { global: "sea", specific: "sg2" },
+        TH: { global: "sea", specific: "th2" },
+        TW: { global: "sea", specific: "tw2" },
+        VN: { global: "sea", specific: "vn2" },
+        ME: { global: "asia", specific: "me" }
+    };
+
+    // Verifica si la región existe en el mapeo
+        const selectedRegion = regionMapping[region];
+        console.log(selectedRegion)
+
+
+        const globalRegion = selectedRegion.global;
+        const specificRegion = selectedRegion.specific;
+
+        const PUUID =  await getPlayerPUUID(playerName, playerTag, region);
 
         if(PUUID != undefined || PUUID != '') {
-            const API_CALL = "https://euw1.api.riotgames.com" + "/lol/summoner/v4/summoners/by-puuid/" + PUUID + "?api_key=" + API_KEY;
+            const API_CALL = "https://" + specificRegion + ".api.riotgames.com" + "/lol/summoner/v4/summoners/by-puuid/" + PUUID.puuid + "?api_key=" + API_KEY;
     
             console.log(API_CALL);
     
@@ -252,7 +439,7 @@ app.get('/getRank', async (req, res) => {
                 .then(response => response.data.id)
                 .catch(err => err)
 
-            const API_CALL_2 = "https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/" + sumonnerId + "?api_key=" + API_KEY
+            const API_CALL_2 = "https://" + specificRegion + ".api.riotgames.com/lol/league/v4/entries/by-summoner/" + sumonnerId + "?api_key=" + API_KEY
  
             const sumonnerRank = await axios.get(API_CALL_2)
                 .then(response => response.data)

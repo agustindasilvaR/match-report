@@ -2,12 +2,22 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import axios from 'axios'
 import SumonnerProfile from './components/sumonnerProfile/SumonnerProfile'
-import { Icon, IconButton, Input} from '@chakra-ui/react'
+import { Icon, IconButton, Input } from '@chakra-ui/react'
+import { Select } from '@chakra-ui/react'
 import { InputGroup } from './components/ui/input-group'
 import { Skeleton } from '@chakra-ui/react'
 import { LuSearch } from 'react-icons/lu'
 import MatchCard from './components/matchCard/MatchCard'
 import RankCard from './components/RankCard/RankCard'
+import Footer from './components/Footer/Footer'
+import {
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectRoot,
+  SelectTrigger,
+  SelectValueText,
+} from "@chakra-ui/react"
 
 function SkeletonCircle({ size = "50px" }) {
   return (
@@ -35,6 +45,8 @@ function App() {
   const [winRate, setWinRate] = useState('')
   const [gameVersion, setGameVersion] = useState('');
   const [itemData, setItemData] = useState('');
+  const [visibleCount, setVisibleCount] = useState(5); // Number of MatchCards to display initially
+  const increment = 5; // Number of MatchCards to add when "Show More" is clicked
 
   const getCurrentVersion = async () => {
   
@@ -57,7 +69,7 @@ function App() {
   const sumonnerIconSource = `https://ddragon.leagueoflegends.com/cdn/${gameVersion}/img/profileicon/${sumonnerIcon}.png`
   const splashSource = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostPlayedChampion}_0.jpg`
   
-
+   console.log(Select)
 
 
 
@@ -102,14 +114,15 @@ function App() {
   function getSumonnerData(event) {
     const nameValue = document.getElementById("sumonner-name").value
     const [sumonnerName, sumonnerTag] = nameValue.split("#");
+    const sumonnerRegion = document.getElementById("sumonner-region").value
     
     setIsLoading(true);
 
-    axios.get("http://localhost:4000/sumonnerIcon", {params: { sumName: sumonnerName, sumTag: sumonnerTag }})
+    axios.get("http://localhost:4000/sumonnerIcon", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
         if(response.data.status != 400) {
           setIsLoading(true);
-          setSumonnerName(sumonnerName)
+          setSumonnerName(response.data.gameName)
           setSumonnerTag(sumonnerTag)
           setSumonnerIcon(response.data.profileIconId);
           setSumonnerLevel(response.data.summonerLevel)
@@ -136,8 +149,9 @@ function App() {
 
     const nameValue = document.getElementById("sumonner-name").value
     const [sumonnerName, sumonnerTag] = nameValue.split("#");
+    const sumonnerRegion = document.getElementById("sumonner-region").value
 
-    axios.get("http://localhost:4000/mostPlayedChampion", {params: { sumName: sumonnerName, sumTag: sumonnerTag }})
+    axios.get("http://localhost:4000/mostPlayedChampion", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
     .then((response) => {
       if(response.data.status != 400) {
         setIsLoading(true);
@@ -161,8 +175,9 @@ function App() {
 
     const nameValue = document.getElementById("sumonner-name").value
     const [sumonnerName, sumonnerTag] = nameValue.split("#");
+    const sumonnerRegion = document.getElementById("sumonner-region").value
 
-    axios.get("http://localhost:4000/playerMatches", {params: { sumName: sumonnerName, sumTag: sumonnerTag }})
+    axios.get("http://localhost:4000/playerMatches", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
         setPlayerMatches(response.data)
       }).catch((error) => {
@@ -172,12 +187,17 @@ function App() {
 
   }
 
+  const showMoreMatches = () => {
+    setVisibleCount(prevCount => prevCount + increment);
+  };
+
   function getPlayerRank(event) {
 
     const nameValue = document.getElementById("sumonner-name").value
+    const sumonnerRegion = document.getElementById("sumonner-region").value
     const [sumonnerName, sumonnerTag] = nameValue.split("#");
 
-    axios.get('http://localhost:4000/getRank', {params: {sumName: sumonnerName, sumTag: sumonnerTag }})
+    axios.get('http://localhost:4000/getRank', {params: {sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
         setSumonnerRank(response.data[0])
         const victories = response.data[0].wins;
@@ -207,14 +227,34 @@ function App() {
       <InputGroup
         id='search-bar'
         endElement={
-          <IconButton
-            onClick={allData}
-            size="xs"
-            focusable="true"
-            id="sub-btn"
-          >
-            <LuSearch />
-          </IconButton>
+          <div style={{display: "flex", gap: "8px"}}>
+            <select name="region" id="sumonner-region" style={{padding: "4px"}}>
+              <option value="EUW">EUW</option>
+              <option value="EUNE">EUNE</option>
+              <option value="NA">NA</option>
+              <option value="LAN">LAN</option>
+              <option value="LAS">LAS</option>
+              <option value="BR">BR</option>
+              <option value="KR">KR</option>
+              <option value="JP">JP</option>
+              <option value="OCE">OCE</option>
+              <option value="TR">TR</option>
+              <option value="PH">PH</option>
+              <option value="SG">SG</option>
+              <option value="TH">TH</option>
+              <option value="TW">TW</option>
+              <option value="VN">VN</option>
+              <option value="ME">ME</option>
+            </select>
+            <IconButton
+              onClick={allData}
+              size="xs"
+              focusable="true"
+              id="sub-btn"
+            >
+              <LuSearch />
+            </IconButton>
+          </div>
         }
       >
         <Input
@@ -231,7 +271,6 @@ function App() {
           colorPalette="white"
         />
       </InputGroup>
-
       {isLoading ? (
         <div>
 
@@ -259,16 +298,51 @@ function App() {
               </div>
             </div>
             <div id='rank-container'>
-              <RankCard rank={sumonnerRank.tier} tier={sumonnerRank.rank} leaguePoints={sumonnerRank.leaguePoints} wins={sumonnerRank.wins} losses={sumonnerRank.losses} wr={winRate}/>
+              <RankCard 
+                rank={sumonnerRank?.tier || "UNRANKED"} 
+                tier={sumonnerRank?.rank || ""} 
+                leaguePoints={sumonnerRank?.leaguePoints ?? 0} 
+                wins={sumonnerRank?.wins ?? 0} 
+                losses={sumonnerRank?.losses ?? 0} 
+                wr={winRate ?? 0} 
+              />
             </div>
-            <div id='match-card-container'>
-              {playerMatches.map((index) => (
-                <MatchCard championIcon={`https://ddragon.leagueoflegends.com/cdn/${gameVersion}/img/champion/${index.championDisplayName}.png`} championName={index.championTextName} gameMode={index.mode} time={index.duration} result={index.win} item0Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item0}.png`} item1Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item1}.png`} item2Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item2}.png`} item3Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item3}.png`} item4Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item4}.png`} item5Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item5}.png`} trinketSrc={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${index.item6}.png`} kda={index.score} itemName1={index.itemName0} itemName2={index.itemName1} itemName3={index.itemName2} itemName4={index.itemName3} itemName5={index.itemName4} itemName6={index.itemName5} trinketName={index.itemName6}></MatchCard> 
+            <div id="match-card-container">
+              {playerMatches.slice(0, visibleCount).map((match, index) => (
+                <MatchCard
+                  key={index}
+                  championIcon={`https://ddragon.leagueoflegends.com/cdn/${gameVersion}/img/champion/${match.championDisplayName}.png`}
+                  championName={match.championTextName}
+                  gameMode={match.mode}
+                  time={match.duration}
+                  result={match.win}
+                  item0Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${match.item0}.png`}
+                  item1Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${match.item1}.png`}
+                  item2Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${match.item2}.png`}
+                  item3Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${match.item3}.png`}
+                  item4Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${match.item4}.png`}
+                  item5Src={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${match.item5}.png`}
+                  trinketSrc={`https://ddragon.leagueoflegends.com/cdn/14.23.1/img/item/${match.item6}.png`}
+                  kda={match.score}
+                  minions={match.minionsKilled}
+                  itemName1={match.itemName0}
+                  itemName2={match.itemName1}
+                  itemName3={match.itemName2}
+                  itemName4={match.itemName3}
+                  itemName5={match.itemName4}
+                  itemName6={match.itemName5}
+                  trinketName={match.itemName6}
+                />
               ))}
+
+              {visibleCount < playerMatches.length && (
+                <button onClick={showMoreMatches}>Show More</button>
+              )}
             </div>
           </div>
         )
       )}
+      <Footer/>
     </div>
   );
   
