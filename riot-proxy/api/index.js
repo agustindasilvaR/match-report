@@ -7,7 +7,7 @@ let app = express();
 
 app.use(cors());
 
-const API_KEY = "RGAPI-dffedfdd-9f07-4c68-9674-2ae2690e05bb";
+const API_KEY = process.env.API_KEY;
 
 let championNameMap = {};
 let itemData = {}
