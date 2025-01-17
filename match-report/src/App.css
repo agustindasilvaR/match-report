@@ -1,3 +1,4 @@
+
 #page-container {
   display: flex;
   flex-direction: column;
@@ -6,6 +7,7 @@
   width: 100vw;
   height: 100vh;
   overflow: visible;
+  background-color: rgb(34, 34, 34);
 }
 
 #search-bar {
@@ -25,6 +27,7 @@
   /* padding-top: 150px; */
   padding-bottom: 50px;
   z-index: 1000;
+  background-color: rgb(34, 34, 34);
 }
 
 #profile-block {

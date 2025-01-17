@@ -7,8 +7,8 @@ export default function RankCard(props) {
     return(
         <div id="rank-card">
                 <AccordionRoot collapsible defaultValue={["solo-duo"]} width="500px" variant={"plain"}>
-                    <AccordionItem value="solo-duo">
-                        <AccordionItemTrigger>Ranked Solo/Duo</AccordionItemTrigger>
+                    <AccordionItem value="solo-duo" >
+                        <AccordionItemTrigger backgroundColor={'rgb(30, 30, 30)'}>Ranked Solo/Duo</AccordionItemTrigger>
                         <AccordionItemContent>
                             <div id="solo-duo">
                             <div id="rank-info">
@@ -26,7 +26,7 @@ export default function RankCard(props) {
                         </AccordionItemContent>
                     </AccordionItem>
                     <AccordionItem value="flex">
-                        <AccordionItemTrigger>Ranked Flex</AccordionItemTrigger>
+                        <AccordionItemTrigger backgroundColor={'rgb(30, 30, 30)'}>Ranked Flex</AccordionItemTrigger>
                         <AccordionItemContent>
                             <div id="solo-duo">
                             <div id="rank-info">

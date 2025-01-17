@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import axios from 'axios'
 import SumonnerProfile from './components/sumonnerProfile/SumonnerProfile'
-import { Icon, IconButton, Input } from '@chakra-ui/react'
+import { Icon, IconButton, Input, Theme } from '@chakra-ui/react'
 import { Select } from '@chakra-ui/react'
 import { InputGroup } from './components/ui/input-group'
 import { Skeleton } from '@chakra-ui/react'
@@ -269,6 +269,7 @@ function App() {
               size="xs"
               focusable="true"
               id="sub-btn"
+              backgroundColor={'rgb(34, 34, 34)'}
             >
               <LuSearch />
             </IconButton>
@@ -360,7 +361,7 @@ function App() {
               ))}
 
               {visibleCount < playerMatches.length && (
-                <button onClick={showMoreMatches}>Show More</button>
+                <button onClick={showMoreMatches} style={{backgroundColor:'rgb(30,30,30)', color:'white'}}>Show More</button>
               )}
             </div>
           </div>
