@@ -10,6 +10,7 @@ import { LuSearch } from 'react-icons/lu'
 import MatchCard from './components/matchCard/MatchCard'
 import RankCard from './components/RankCard/RankCard'
 import Footer from './components/Footer/Footer'
+import { Spinner } from '@chakra-ui/react'
 import {
   SelectContent,
   SelectItem,
@@ -33,7 +34,6 @@ function SkeletonCircle({ size = "50px" }) {
 
 function App() {
 
-  const [isLoading, setIsLoading] = useState(false)
 
   const [sumonnerIcon, setSumonnerIcon] = useState('')
   const [mostPlayedChampion, setMostPlayedChampion] = useState('')
@@ -49,6 +49,12 @@ function App() {
   const [itemData, setItemData] = useState('');
   const [visibleCount, setVisibleCount] = useState(5); // Number of MatchCards to display initially
   const increment = 5; // Number of MatchCards to add when "Show More" is clicked
+  const [isLoading, setIsLoading] = useState(false);
+
+
+  useEffect(() => {
+    console.log('isLoading:', isLoading);
+  }, [isLoading]);
 
   const getCurrentVersion = async () => {
   
@@ -125,17 +131,16 @@ function App() {
     const [sumonnerName, sumonnerTag] = nameValue.split("#");
     const sumonnerRegion = document.getElementById("sumonner-region").value
     
-    setIsLoading(true);
 
     axios.get("https://match-report-api-delta.vercel.app/sumonnerIcon", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
         if(response.data.status != 400) {
-          setIsLoading(true);
+
           setSumonnerName(response.data.gameName)
           setSumonnerTag(sumonnerTag)
           setSumonnerIcon(response.data.profileIconId);
           setSumonnerLevel(response.data.summonerLevel)
-          setIsLoading(false)
+
         } else {
           setSumonnerIcon('')
           setSumonnerTag('')
@@ -149,7 +154,7 @@ function App() {
 
       }).finally(() => {
 
-        setIsLoading(false)
+
 
       })
   }
@@ -159,13 +164,15 @@ function App() {
     const nameValue = document.getElementById("sumonner-name").value
     const [sumonnerName, sumonnerTag] = nameValue.split("#");
     const sumonnerRegion = document.getElementById("sumonner-region").value
+    
+
 
     axios.get("https://match-report-api-delta.vercel.app/mostPlayedChampion", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
     .then((response) => {
       if(response.data.status != 400) {
-        setIsLoading(true);
+
         setMostPlayedChampion(response.data);
-        setIsLoading(false);
+
       }
 
 
@@ -175,7 +182,6 @@ function App() {
 
     }).finally(() => {
 
-      setIsLoading(false)
 
     })
   }
@@ -186,12 +192,16 @@ function App() {
     const [sumonnerName, sumonnerTag] = nameValue.split("#");
     const sumonnerRegion = document.getElementById("sumonner-region").value
 
+
     axios.get("https://match-report-api-delta.vercel.app/playerMatches", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
-        setPlayerMatches(response.data)
+
+        setPlayerMatches(response.data);
+
       }).catch((error) => {
 
       }).finally(()=> {
+
       })
 
   }
@@ -206,9 +216,12 @@ function App() {
     const sumonnerRegion = document.getElementById("sumonner-region").value
     const [sumonnerName, sumonnerTag] = nameValue.split("#");
 
+
+
     axios.get('https://match-report-api-delta.vercel.app/getRank', {params: {sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
         console.log(response.data[1])
+
         setSumonnerRankSolo(response.data[0])
         setSumonnerRankFlex(response.data[1])
         const victoriesSolo = response.data[0].wins;
@@ -222,6 +235,8 @@ function App() {
         const totalGamesFlex = victoriesFlex + lossesFlex;
         setWinRateFlex(((victoriesFlex / totalGamesFlex) * 100).toFixed(0))
 
+
+
       }).catch((error) => {
 
       }).finally(() => {
@@ -232,13 +247,25 @@ function App() {
 
   }
 
-  function allData(event) {
+  const allData = async (event) => {
     clearSummonerData();
-    getSumonnerData();
-    getMostPlayedChampion();
-    getPlayerMatches();
-    getPlayerRank();
-  }
+    setIsLoading(true); // Inicia la carga
+    try {
+      await Promise.all([
+        getSumonnerData(),
+        getMostPlayedChampion(),
+        getPlayerMatches(),
+        getPlayerRank(),
+      ]);
+      // Simula un retraso para mostrar el Spinner
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false); // Finaliza la carga
+    }
+  };
+  
 
   return (
     <div id="page-container">
@@ -291,8 +318,15 @@ function App() {
         />
       </InputGroup>
       {isLoading ? (
-        <div>
-
+        <div   style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh', // Altura completa de la pantalla
+          width: '100%', // Ancho completo
+          backgroundColor: 'rgba(0, 0, 0, 0.1)', // Fondo opcional para diferenciar
+        }}>
+          <Spinner size="xl" />
         </div>
       ) : (
         sumonnerIcon !== "" && (

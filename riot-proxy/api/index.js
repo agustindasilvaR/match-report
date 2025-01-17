@@ -384,13 +384,13 @@ app.get('/playerMatches', async (req, res) => {
                     return queueMap[queueId] || "Unknown Mode";
                 }
 
-                function getChampionName(champion) {
+                async function getChampionName(champion) {
                     return championNameMap[champion] || "Unknown champion";
                 }
 
                 playerMatches.push({
                     match,
-                    championTextName: getChampionName(playerData.championName),
+                    championTextName: await getChampionName(playerData.championName),
                     championDisplayName: playerData.championName,
                     kills: playerData.kills,
                     deaths: playerData.deaths,
