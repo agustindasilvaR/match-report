@@ -70,6 +70,7 @@ function App() {
    getCurrentVersion();
 
    const clearSummonerData = () => {
+    setVisibleCount(5)
     setSumonnerRankSolo(null);
     setSumonnerRankFlex(null);
     setWinRateSolo(0);
