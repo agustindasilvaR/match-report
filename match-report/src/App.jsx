@@ -303,7 +303,7 @@ function App() {
         <Input
           type="text"
           id="sumonner-name"
-          placeholder="Search a sumonner..."
+          placeholder="Search a summoner..."
           variant="filled"
           background={'white'}
           color={'black'}
