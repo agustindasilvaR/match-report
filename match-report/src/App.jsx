@@ -11,6 +11,7 @@ import MatchCard from './components/matchCard/MatchCard'
 import RankCard from './components/RankCard/RankCard'
 import Footer from './components/Footer/Footer'
 import { Spinner } from '@chakra-ui/react'
+import { Text } from '@chakra-ui/react'
 import {
   SelectContent,
   SelectItem,
@@ -255,7 +256,6 @@ function App() {
         getPlayerMatches(),
         getPlayerRank(),
       ]);
-      // Simula un retraso para mostrar el Spinner
       await new Promise(resolve => setTimeout(resolve, 5000));
     } catch (error) {
     } finally {
@@ -323,7 +323,7 @@ function App() {
           width: '100%', 
           backgroundColor: 'rgba(0, 0, 0, 0.1)', 
         }}>
-          <Spinner size="xl" />
+          <Spinner size="xl" color={'white'} />
         </div>
       ) : (
         sumonnerIcon !== "" && (
@@ -401,13 +401,13 @@ function App() {
       {!isLoading && error === '404' && (
         <div style={{display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center', justifyContent: 'center', gap: '20px'}}>
           <img src='assets/not-found.png'/>
-          <p>Summoner not found, please check your sumonner name, tag and region.</p>
+          <Text color={'white'}>Summoner not found, please check your sumonner name, tag and region.</Text>
         </div>
       )}
       {!isLoading && error === '429' && (
         <div style={{display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center', justifyContent: 'center'}}>
           <img src='assets/too-many-requests.png'/>
-          <p>Oops, too many requests! Please, wait a moment before trying again.</p>
+          <Text color={'white'}>Oops, too many requests! Please, wait a moment before trying again.</Text>
         </div>
       )}
       <Footer/>
