@@ -139,7 +139,7 @@ function App() {
     const sumonnerRegion = document.getElementById("sumonner-region").value
     
 
-    axios.get("http://localhost:4000/sumonnerIcon", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
+    axios.get("https://match-report-api-delta.vercel.app/sumonnerIcon", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
         if(response.data.status != 400) {
 
@@ -181,7 +181,7 @@ function App() {
     
 
 
-    axios.get("http://localhost:4000/mostPlayedChampion", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
+    axios.get("https://match-report-api-delta.vercel.app/mostPlayedChampion", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
     .then((response) => {
       if(response.data.status != 400) {
 
@@ -207,7 +207,7 @@ function App() {
     const sumonnerRegion = document.getElementById("sumonner-region").value
 
 
-    axios.get("http://localhost:4000/playerMatches", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
+    axios.get("https://match-report-api-delta.vercel.app/playerMatches", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
 
         setPlayerMatches(response.data);
@@ -232,7 +232,7 @@ function App() {
 
 
 
-    axios.get('http://localhost:4000/getRank', {params: {sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
+    axios.get('https://match-report-api-delta.vercel.app/getRank', {params: {sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
 
 
