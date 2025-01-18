@@ -52,11 +52,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('')
 
-
-  useEffect(() => {
-    console.log('isLoading:', isLoading);
-  }, [isLoading]);
-
   const getCurrentVersion = async () => {
   
     const response = await fetch('https://ddragon.leagueoflegends.com/api/versions.json')
@@ -82,20 +77,9 @@ function App() {
     setSumonnerTag('');
 
   };
-
-
-
-
-
-
+  
   const sumonnerIconSource = `https://ddragon.leagueoflegends.com/cdn/${gameVersion}/img/profileicon/${sumonnerIcon}.png`
   const splashSource = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostPlayedChampion}_0.jpg`
-  
-   console.log(Select)
-
-
-
-
 
   document.addEventListener('scroll', () => {
     const target = document.getElementById('champ')
