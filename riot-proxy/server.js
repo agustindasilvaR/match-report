@@ -52,7 +52,6 @@ const loadChampionData = async () => {
             const champion = champions[champKey];
             championNameMap[champion.id] = champion.name;
         }
-        console.log('Champion data loaded successfully.');
     } catch (error) {
         console.error('Error loading champion data:', error);
     }
@@ -91,7 +90,6 @@ async function getPlayerPUUID(playerName, playerTag, region) {
         ME: { global: "asia", specific: "me" }
     };
 
-    // Verifica si la región existe en el mapeo
     const selectedRegion = regionMapping[region];
     if (!selectedRegion) {
         throw new Error("Invalid region provided");
@@ -100,47 +98,28 @@ async function getPlayerPUUID(playerName, playerTag, region) {
     const globalRegion = selectedRegion.global;
     const apiUrl = `https://${globalRegion}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${playerName}/${playerTag}?api_key=${API_KEY}`;
 
-    let attempts = 0; // Contador de intentos
-    const maxAttempts = 3; // Límite de reintentos en caso de errores 503
-
-    while (attempts < maxAttempts) {
-        try {
-            const response = await axios.get(apiUrl);
-            // Retorna un objeto con gameName y puuid si la solicitud fue exitosa
-            return {
-                gameName: response.data.gameName,
-                puuid: response.data.puuid,
-            };
-        } catch (error) {
-            attempts++;
-            // Maneja errores específicos
-            if (error.response) {
-                if (error.response.status === 404) {
-                    throw new Error("Player not found: Invalid player name or tag");
-                }
-                if (error.response.status === 503) {
-                    console.warn(`Service unavailable (503). Retrying (${attempts}/${maxAttempts})...`);
-                    if (attempts >= maxAttempts) {
-                        throw new Error("Service unavailable after multiple retries");
-                    }
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // Espera 1 segundo antes de reintentar
-                    continue; // Reintenta la solicitud
-                }
-            }
-            // Manejo de otros errores (por ejemplo, problemas de red)
-            console.error("Error fetching PUUID:", error.message);
-            throw new Error("An unexpected error occurred while fetching PUUID");
+    try {
+        const response = await axios.get(apiUrl);
+        return {
+            gameName: response.data.gameName,
+            puuid: response.data.puuid,
+        };
+    } catch (error) {
+        if (error.response && error.response.status === 404) {
+            throw { status: 404, message: "Player not found: Invalid player name or tag" };
         }
+        if (error.response && error.response.status === 503) {
+            throw { status: 503, message: "Service unavailable: Please try again later" };
+        }
+        throw { status: 429, message: "An unexpected error occurred while fetching PUUID" };
     }
-
-    // Si se supera el número máximo de intentos, lanza un error
-    throw new Error("Unable to fetch PUUID after multiple retries");
 }
 
 
 
 
-app.get('/sumonnerIcon', async (req, res) => {
+
+app.get('/sumonnerIcon', async (req, res, next) => {
     const playerName = encodeURIComponent(req.query.sumName);
     const playerTag = encodeURIComponent(req.query.sumTag);
     const region = req.query.region;
@@ -164,7 +143,6 @@ app.get('/sumonnerIcon', async (req, res) => {
         ME: { global: "asia", specific: "me" }
     };
 
-    // Verifica si la región existe en el mapeo
     const selectedRegion = regionMapping[region];
     if (!selectedRegion) {
         return res.status(400).json({ error: "Invalid region" });
@@ -191,7 +169,6 @@ app.get('/sumonnerIcon', async (req, res) => {
                 });
 
             if (summonerData) {
-                // Agrega el campo gameName al objeto summonerData
                 summonerData.gameName = PUUID.gameName;
 
                 console.log(summonerData);
@@ -203,8 +180,7 @@ app.get('/sumonnerIcon', async (req, res) => {
             return res.status(400).json({ error: "Invalid PUUID" });
         }
     } catch (error) {
-        console.error("Error:", error.message);
-        return res.status(500).json({ error: "Internal server error" });
+        next(error)
     }
 });
 
@@ -215,7 +191,6 @@ app.get('/mostPlayedChampion', async (req, res, next) => {
         const playerTag = encodeURIComponent(req.query.sumTag);
         const region = req.query.region;
 
-        // Verifica si la región existe en el mapeo
         const regionMapping = {
             EUW: { global: "europe", specific: "euw1" },
             EUNE: { global: "europe", specific: "eun1" },
@@ -243,13 +218,8 @@ app.get('/mostPlayedChampion', async (req, res, next) => {
         const globalRegion = selectedRegion.global;
         const specificRegion = selectedRegion.specific;
 
-        // Intenta obtener el PUUID del jugador
         const PUUID = await getPlayerPUUID(playerName, playerTag, region);
-        if (!PUUID || !PUUID.puuid) {
-            return res.status(404).json({ error: "Player not found" });
-        }
 
-        // Realiza la llamada a la API para obtener el campeón más jugado
         const API_CALL = `https://${specificRegion}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/${PUUID.puuid}?api_key=${API_KEY}`;
         const sumonnerData = await axios.get(API_CALL)
             .then(response => response.data[0]) // Obtiene el campeón más jugado
@@ -261,11 +231,9 @@ app.get('/mostPlayedChampion', async (req, res, next) => {
             return res.status(404).json({ error: "No champion data found for player" });
         }
 
-        // Obtiene los datos de los campeones
         const championsResponse = await axios.get(`https://ddragon.leagueoflegends.com/cdn/14.24.1/data/en_US/champion.json`);
         const championsData = championsResponse.data.data;
 
-        // Busca el nombre del campeón correspondiente
         const championName = Object.values(championsData).find(
             champ => champ.key === JSON.stringify(sumonnerData.championId)
         )?.id;
@@ -274,16 +242,14 @@ app.get('/mostPlayedChampion', async (req, res, next) => {
             return res.status(404).json({ error: "Champion not found in data" });
         }
 
-        // Responde con el nombre del campeón más jugado
         res.json(championName);
     } catch (error) {
-        console.error("Error in /mostPlayedChampion:", error.message);
-        next(error); // Envía el error al middleware global para manejarlo
+        next(error);
     }
 });
 
 
-app.get('/playerMatches', async (req, res) => {
+app.get('/playerMatches', async (req, res, next) => {
     try {
         const playerName = encodeURIComponent(req.query.sumName);
         const playerTag = encodeURIComponent(req.query.sumTag);
@@ -420,13 +386,12 @@ app.get('/playerMatches', async (req, res) => {
 
         res.json(playerMatches);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "An error occurred while processing your request." });
+        next(error)
     }
 });
 
 
-app.get('/getRank', async (req, res) => {
+app.get('/getRank', async (req, res, next) => {
     try {
         const playerName = encodeURIComponent(req.query.sumName);
         const playerTag = encodeURIComponent(req.query.sumTag);
@@ -480,19 +445,17 @@ app.get('/getRank', async (req, res) => {
 
         res.json(summonerRank);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "An error occurred while processing your request." });
+
+        next(error)
     }
 });
 
 
-// Middleware global para manejar errores
 app.use((err, req, res, next) => {
     console.error("Error capturado:", err.message);
 
-    // Devuelve una respuesta de error al cliente
     res.status(err.status || 500).json({
-        error: "Internal Server Error",
+        error: err.status === 404 ? "Not Found" : "Internal Server Error",
         message: err.message,
     });
 });

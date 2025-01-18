@@ -47,9 +47,10 @@ function App() {
   const [winRateFlex, setWinRateFlex] = useState(0)
   const [gameVersion, setGameVersion] = useState('');
   const [itemData, setItemData] = useState('');
-  const [visibleCount, setVisibleCount] = useState(5); // Number of MatchCards to display initially
-  const increment = 5; // Number of MatchCards to add when "Show More" is clicked
+  const [visibleCount, setVisibleCount] = useState(5);
+  const increment = 5; 
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('')
 
 
   useEffect(() => {
@@ -75,6 +76,11 @@ function App() {
     setSumonnerRankFlex(null);
     setWinRateSolo(0);
     setWinRateFlex(0);
+    setSumonnerIcon('');
+    setSumonnerLevel('');
+    setSumonnerName('');
+    setSumonnerTag('');
+
   };
 
 
@@ -123,7 +129,7 @@ function App() {
     const maxBlur = 8;
     const blur = ((defaultHeight - newHeight) / (defaultHeight - minHeight)) * maxBlur;
     profileBlock.style.filter = `blur(${blur.toFixed(2)}px)`;
-    sumonnerBlock.style.opacity = opacity.toFixed(2); // Ajusta la opacidad
+    sumonnerBlock.style.opacity = opacity.toFixed(2);
   });
   
 
@@ -133,7 +139,7 @@ function App() {
     const sumonnerRegion = document.getElementById("sumonner-region").value
     
 
-    axios.get("https://match-report-api-delta.vercel.app/sumonnerIcon", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
+    axios.get("http://localhost:4000/sumonnerIcon", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
         if(response.data.status != 400) {
 
@@ -141,6 +147,7 @@ function App() {
           setSumonnerTag(sumonnerTag)
           setSumonnerIcon(response.data.profileIconId);
           setSumonnerLevel(response.data.summonerLevel)
+          setError('')
 
         } else {
           setSumonnerIcon('')
@@ -151,7 +158,13 @@ function App() {
 
       }).catch((error) => {
 
-        
+        if(error.status === 404) {
+          setError('404')
+        }
+
+        if(error.status === 429) {
+          setError('429')
+        }
 
       }).finally(() => {
 
@@ -168,7 +181,7 @@ function App() {
     
 
 
-    axios.get("https://match-report-api-delta.vercel.app/mostPlayedChampion", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
+    axios.get("http://localhost:4000/mostPlayedChampion", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
     .then((response) => {
       if(response.data.status != 400) {
 
@@ -194,7 +207,7 @@ function App() {
     const sumonnerRegion = document.getElementById("sumonner-region").value
 
 
-    axios.get("https://match-report-api-delta.vercel.app/playerMatches", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
+    axios.get("http://localhost:4000/playerMatches", {params: { sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
 
         setPlayerMatches(response.data);
@@ -219,9 +232,9 @@ function App() {
 
 
 
-    axios.get('https://match-report-api-delta.vercel.app/getRank', {params: {sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
+    axios.get('http://localhost:4000/getRank', {params: {sumName: sumonnerName, sumTag: sumonnerTag, region: sumonnerRegion }})
       .then((response) => {
-        console.log(response.data[1])
+
 
         setSumonnerRankSolo(response.data[0])
         setSumonnerRankFlex(response.data[1])
@@ -250,7 +263,7 @@ function App() {
 
   const allData = async (event) => {
     clearSummonerData();
-    setIsLoading(true); // Inicia la carga
+    setIsLoading(true); 
     try {
       await Promise.all([
         getSumonnerData(),
@@ -261,9 +274,8 @@ function App() {
       // Simula un retraso para mostrar el Spinner
       await new Promise(resolve => setTimeout(resolve, 5000));
     } catch (error) {
-      console.error('Error fetching data:', error);
     } finally {
-      setIsLoading(false); // Finaliza la carga
+      setIsLoading(false);
     }
   };
   
@@ -323,9 +335,9 @@ function App() {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          height: '100vh', // Altura completa de la pantalla
-          width: '100%', // Ancho completo
-          backgroundColor: 'rgba(0, 0, 0, 0.1)', // Fondo opcional para diferenciar
+          height: '100vh', 
+          width: '100%', 
+          backgroundColor: 'rgba(0, 0, 0, 0.1)', 
         }}>
           <Spinner size="xl" />
         </div>
@@ -401,6 +413,18 @@ function App() {
             </div>
           </div>
         )
+      )}
+      {!isLoading && error === '404' && (
+        <div style={{display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center', justifyContent: 'center', gap: '20px'}}>
+          <img src='assets/not-found.png'/>
+          <p>Summoner not found, please check your sumonner name, tag and region.</p>
+        </div>
+      )}
+      {!isLoading && error === '429' && (
+        <div style={{display: 'flex', flexDirection: 'column', height: '100%', alignItems: 'center', justifyContent: 'center'}}>
+          <img src='assets/too-many-requests.png'/>
+          <p>Oops, too many requests! Please, wait a moment before trying again.</p>
+        </div>
       )}
       <Footer/>
     </div>
